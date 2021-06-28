@@ -2,6 +2,7 @@ const fs = require('fs');
 require('dotenv').config()
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
+const { aliases } = require('./commands/fun/pic');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -16,6 +17,7 @@ for (const folder of commandFolders) {
 	}
 }
 
+/* SLASH COMMANDS STUFFS */
 const getApp = (guildId) => {
   const app = client.api.applications(client.user.id);
   if (guildId) app.guilds(guildId);
@@ -29,7 +31,7 @@ client.once('ready', async () => {
   console.log('ready!!');
 
   const commands = await getApp(testGuildId).commands.get();
-  console.log(commands);
+  // console.log(commands);
   // await getApp(testGuildId).commands('858564287885738004').delete(); // DELETE COMMAND
   await getApp(testGuildId).commands.post({
     data: {
@@ -69,7 +71,7 @@ client.once('ready', async () => {
         args[name] = value;
       }
     }
-    console.log(args);
+    // console.log(args);
 
     if (command === 'spot') {
       const URL_REGEX = /^https:\/\/open.spotify.com\/.+\/.+$/;
@@ -85,19 +87,23 @@ client.once('ready', async () => {
   })
 });
 
+/* COMMAND HANDLING */
+
 client.on('message', message => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
 	const commandName = args.shift().toLowerCase();
 
-	if (!client.commands.has(commandName)) return;
+  const command = client.commands.get(commandName)
+      || client.commands.find(cmd => cmd.aliases && aliases.includes(commandName)); // aliases
 
-  const command = client.commands.get(commandName);
-  if (command.guildOnly && message.channel.type === 'dm') { // check if guild only
+  if (!command) return;
+
+  if (command.guildOnly && message.channel.type === 'dm') { // guild only
     return message.reply('type this in a server pls c:');
   }
-  if (command.args && !args.length) { // check for args
+  if (command.args && !args.length) { // args
     let reply = `u didn't provide any arguments !! `;
     if (command.usage) reply += `use me like this: \`${prefix}${command.name} ${command.usage}\`` // give usage
     return message.channel.reply(reply);
@@ -110,7 +116,6 @@ client.on('message', message => {
 		message.reply('i broke :(');
 	}
 });
-
 
 
 client.login(process.env.TOKEN);
