@@ -7,15 +7,7 @@ const { aliases } = require('./commands/fun/pic');
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
-const commandFolders = fs.readdirSync('./commands');
 
-for (const folder of commandFolders) {
-	const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
-	for (const file of commandFiles) {
-		const command = require(`./commands/${folder}/${file}`);
-		client.commands.set(command.name, command);
-	}
-}
 
 /* SLASH COMMANDS STUFFS */
 const getApp = (guildId) => {
@@ -88,25 +80,31 @@ client.once('ready', async () => {
 });
 
 /* COMMAND HANDLING */
+const commandFolders = fs.readdirSync('./commands');
+for (const folder of commandFolders) {
+	const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+	for (const file of commandFiles) {
+		const command = require(`./commands/${folder}/${file}`);
+		client.commands.set(command.name, command);
+	}
+}
 
 client.on('message', message => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
 	const commandName = args.shift().toLowerCase();
-
   const command = client.commands.get(commandName)
-      || client.commands.find(cmd => cmd.aliases && aliases.includes(commandName)); // aliases
+      || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)); // aliases
 
-  if (!command) return;
+  if (!command) return; // message was not a bot command?
+  console.log(`${message.author.username} called ${command.name} in a ${message.channel.type} channel at ${message.createdAt.toLocaleDateString()} ${message.createdAt.toLocaleTimeString()}`)
 
-  if (command.guildOnly && message.channel.type === 'dm') { // guild only
-    return message.reply('type this in a server pls c:');
-  }
-  if (command.args && !args.length) { // args
+  if (command.guildOnly && message.channel.type === 'dm') return message.reply('type this in a server pls c:'); // guild only?
+  if (command.args && !args.length) { // no arg provided when needed?
     let reply = `u didn't provide any arguments !! `;
-    if (command.usage) reply += `use me like this: \`${prefix}${command.name} ${command.usage}\`` // give usage
-    return message.channel.reply(reply);
+    if (command.usage) reply += `use me like this: \`${prefix}${command.name} ${command.usage}\``
+    return message.reply(reply);
   }
   
 	try {
@@ -116,6 +114,8 @@ client.on('message', message => {
 		message.reply('i broke :(');
 	}
 });
+
+
 
 
 client.login(process.env.TOKEN);

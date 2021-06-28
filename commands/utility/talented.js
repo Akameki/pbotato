@@ -2,7 +2,6 @@ const quote = "talented, brilliant, incredible, amazing, show stopping, spectacu
 
 module.exports = {
 	name: 'talented',
-	description: '',
 	execute(message, args) {
 		message.channel.send(quote);
 	},
