@@ -11,7 +11,7 @@ client.commands = new Discord.Collection();
 const priv = '246394993151967233';  // p
 const shxt = '855733554942836736';  // shxt
 
- // SLASH COMMANDS STUFFS 
+// SLASH COMMANDS STUFFS 
 const getApp = (guildId) => { const app = client.api.applications(client.user.id); if (guildId) app.guilds(guildId); return app; }
 
 
@@ -25,42 +25,42 @@ client.once('ready', async () => {
 
 
   {
-  // const ggg = null;
-  // await getApp(ggg).commands.post({
-  //   data: {
-  //     name: 'cspot',
-  //     description: 'copy paste some beautiful spotify url!',
-  //     options: [
-  //       {
-  //         name: 'spotify-urls',
-  //         description: 'uwu',
-  //         required: true,
-  //         type: 3
-  //       },
-  //     ]
-  //   }
-  // })
-  // await getApp(ggg).commands.post({
-  //   data: {
-  //     name: 'spot',
-  //     description: 'make ur spotify url beautiful!',
-  //     options: [
-  //       {
-  //         name: 'spotify-urls',
-  //         description: 'uwu',
-  //         required: true,
-  //         type: 3
-  //       },
-  //     ]
-  //   }
-  // })
-  // 
-  // console.log("GLOBAL");
-  // await displayCommands();
-  // console.log("PRIV");
-  // await displayCommands(priv);
-  // console.log("SHXT");
-  // await displayCommands(shxt);
+    // const ggg = null;
+    // await getApp(ggg).commands.post({
+    //   data: {
+    //     name: 'cspot',
+    //     description: 'copy paste some beautiful spotify url!',
+    //     options: [
+    //       {
+    //         name: 'spotify-urls',
+    //         description: 'uwu',
+    //         required: true,
+    //         type: 3
+    //       },
+    //     ]
+    //   }
+    // })
+    // await getApp(ggg).commands.post({
+    //   data: {
+    //     name: 'spot',
+    //     description: 'make ur spotify url beautiful!',
+    //     options: [
+    //       {
+    //         name: 'spotify-urls',
+    //         description: 'uwu',
+    //         required: true,
+    //         type: 3
+    //       },
+    //     ]
+    //   }
+    // })
+    // 
+    // console.log("GLOBAL");
+    // await displayCommands();
+    // console.log("PRIV");
+    // await displayCommands(priv);
+    // console.log("SHXT");
+    // await displayCommands(shxt);
   }
 
   const reply = (interaction, msg) => { client.api.interactions(interaction.id, interaction.token).callback.post({ data: { type: 4, data: { content: msg } } }) }
@@ -74,7 +74,7 @@ client.once('ready', async () => {
 
     // set up args object to hold args
     const args = {};
-    if (options) 
+    if (options)
       for (const option of options)
         args[option.name] = option.value;
 
@@ -107,21 +107,21 @@ client.once('ready', async () => {
 /* COMMAND HANDLING */
 const commandFolders = fs.readdirSync('./commands');
 for (const folder of commandFolders) {
-	const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
-	for (const file of commandFiles) {
-		const command = require(`./commands/${folder}/${file}`);
-		client.commands.set(command.name, command);
-	}
+  const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+  for (const file of commandFiles) {
+    const command = require(`./commands/${folder}/${file}`);
+    client.commands.set(command.name, command);
+  }
 }
 
 client.on('message', async message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
   /* NEW djs 13 stuff not yet available 
 
-	if (!client.application?.owner) await client.application?.fetch(); // idk what this is
+  if (!client.application?.owner) await client.application?.fetch(); // idk what this is
 
-	if (message.content.toLowerCase() === '$deploy' && message.author.id === client.application?.owner.id) {
-		const data = [
+  if (message.content.toLowerCase() === '$deploy' && message.author.id === client.application?.owner.id) {
+    const data = [
       {
         name: 'cspot',
         description: 'copy paste some beautiful spotify url!',
@@ -149,15 +149,15 @@ client.on('message', async message => {
     ];
 
     const command = await client.guilds.cache.get(priv)?.commands.set(data);
-		// const command = await client.application?.commands.create(data);
-		console.log(command);
+    // const command = await client.application?.commands.create(data);
+    console.log(command);
 
     */
 
-	const args = message.content.slice(prefix.length).trim().split(/ +/);
-	const commandName = args.shift().toLowerCase();
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const commandName = args.shift().toLowerCase();
   const command = client.commands.get(commandName)
-      || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)); // aliases
+    || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)); // aliases
 
   if (!command) return; // message was not a bot command?
   console.log(`${message.author.username} called ${command.name} in a ${message.channel.type} channel at ${message.createdAt.toLocaleDateString()} ${message.createdAt.toLocaleTimeString()}`)
@@ -168,14 +168,14 @@ client.on('message', async message => {
     if (command.usage) reply += `use me like this: \`${prefix}${command.name} ${command.usage}\``
     return message.reply(reply);
   }
-  
-	try {
+
+  try {
     message.cmd = commandName;
-		command.execute(message, args);
-	} catch (error) {
-		console.error(error);
-		message.reply('i broke :(');
-	}
+    command.execute(message, args);
+  } catch (error) {
+    console.error(error);
+    message.reply('i broke :(');
+  }
 });
 
 
