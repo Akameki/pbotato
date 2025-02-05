@@ -7,22 +7,31 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 client.commands = new Collection();
 
-// read all files in subdirectories of command directory
 const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
 for (const folder of commandFolders) {
   const commandFiles = fs.readdirSync(path.join(__dirname, 'commands', folder)).filter(file => file.endsWith('.js'));
   for (const file of commandFiles) {
     const command = require(path.join(__dirname, 'commands', folder, file));
-    if (command.data) {
-      client.commands.set(command.data.name, command);
+    if (!command.data || !command.execute) {
+      console.log(`[WARNING] ignoring commands/${file} because it does not have a data or execute property`);
     } else {
-      console.log(`[WARNING] ignoring ${file} because it does not have a data property`);
+      client.commands.set(command.data.name, command);
     }
   }
 }
 
-client.once(Events.ClientReady, (x) => {
-  console.log(`ready, logged in as ${x.user.tag}`);
-});
+const eventsFiles = fs.readdirSync(path.join(__dirname, 'events')).filter(file => file.endsWith('.js'));
+for (const file of eventsFiles) {
+  const event = require(path.join(__dirname, 'events', file));
+  if (!event.name || !event.execute) {
+    console.log(`[WARNING] ignoring events/${file} because it does not have a name or execute property`);
+    continue;
+  }
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args, client));
+  } else {
+    client.on(event.name, (...args) => event.execute(...args, client));
+  }
+}
 
 client.login(process.env.TOKEN);
