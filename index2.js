@@ -6,8 +6,9 @@ require('dotenv').config();
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
 client.commands = new Collection();
+client.cooldowns = new Collection();
 
-const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
+const commandFolders = fs.readdirSync(path.join(__dirname, 'commands')).filter(file => fs.statSync(path.join(__dirname, 'commands', file)).isDirectory());
 for (const folder of commandFolders) {
   const commandFiles = fs.readdirSync(path.join(__dirname, 'commands', folder)).filter(file => file.endsWith('.js'));
   for (const file of commandFiles) {

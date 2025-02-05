@@ -47,3 +47,8 @@ const guildId = "SERVER ID HERE";
     console.error(error);
   }
 })();
+
+/* delete command */
+// let commandIds = [];
+// for (const command of commandIds) {
+//   rest.delete(Routes.applicationGuildCommand(process.env.CLIENT_ID, guildId, command))}
